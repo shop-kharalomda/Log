@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>إدارة المنتجات</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            color: #333;
+            text-align: center;
+        }
+        .header {
+            background-color: #333;
+            color: white;
+            padding: 10px 0;
+        }
+        nav a {
+            color: white;
+            margin: 0 10px;
+            text-decoration: none;
+        }
+        .products-section {
+            margin-top: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .product-item {
+            width: 200px;
+            height: 300px;
+            padding: 10px;
+            margin: 10px;
+            background-color: #fff;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .product-item h3 {
+            margin: 0;
+            font-size: 18px;
+        }
+        .product-item img {
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 5px;
+        }
+        .buttons-container {
+            display: flex;
+            gap: 10px;
+        }
+        .product-item button {
+            padding: 5px 10px;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+            font-size: 12px;
+        }
+        .product-item .edit-btn {
+            background-color: yellow;
+            color: black;
+        }
+        .product-item .edit-btn:hover {
+            background-color: #ffeb3b;
+        }
+        .product-item .delete-btn {
+            background-color: red;
+            color: white;
+        }
+        .product-item .delete-btn:hover {
+            background-color: #f44336;
+        }
+        .add-product-section {
+            margin-top: 20px;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #333;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        button:hover {
+            background-color: #555;
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <h1>إدارة المنتجات</h1>
+            <nav>  <a href="logout.html">تسجيل الخروج</a>         <a href="الاحصائيات.html">الإحصائيات</a>        <a href="admin-orders.html">الطلبات</a>   <br>        <a href="archived.html">الطلبات المؤرشفة</a>     </nav>
+    </header>
+
+    <section class="add-product-section">
+        <h2 id="formTitle">إضافة منتج جديد</h2>
+        <form id="productForm">
+            <input type="hidden" id="productId">
+            <input type="text" id="productName" placeholder="اسم المنتج" required><br><br>
+            <input type="number" id="productPrice" placeholder="سعر الكيلو أو الوحدة" required><br><br>
+            <input type="file" id="productImage" accept="image/*"><br><br>
+            
+            <label for="sellingType">نوع البيع:</label>
+            <select id="sellingType" required>
+                <option value="weight">بالوزن</option>
+                <option value="quantity">بالعدد</option>
+            </select><br><br>
+
+            <button type="submit">حفظ المنتج</button>
+        </form>
+    </section>
+
+    <section class="products-section" id="productsList">
+        <h2>قائمة المنتجات</h2>
+        <!-- سيتم ملء هذه المنطقة بالمنتجات عبر جافا سكربت -->
+    </section>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+        import { getFirestore, collection, getDocs, addDoc, updateDoc, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBgFMBaHAtGa0B5nLrBq2maqVv6n3ko7gA",
+            authDomain: "loginapp-7287b.firebaseapp.com",
+            projectId: "loginapp-7287b",
+            storageBucket: "loginapp-7287b.appspot.com",
+            messagingSenderId: "19204068339",
+            appId: "1:19204068339:web:1b75587ac8e9defd533886",
+            measurementId: "G-93HNMBZ446"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        window.onload = displayProducts;
+
+        async function displayProducts() {
+            const productsList = document.getElementById('productsList');
+            productsList.innerHTML = '';
+            const querySnapshot = await getDocs(collection(db, "products"));
+
+            querySnapshot.forEach((docSnap) => {
+                const product = docSnap.data();
+                const productId = docSnap.id;
+                const productItem = document.createElement('div');
+                productItem.classList.add('product-item');
+
+                productItem.innerHTML = `
+                    <h3>${product.name}</h3>
+                    <p>${product.sellingType === 'weight' ? 'سعر الكيلو' : 'سعر الوحدة'}: ${product.price} جنيه</p>
+                    ${product.image ? `<img src="${product.image}" alt="${product.name}">` : ''}
+                    <div class="buttons-container">
+                        <button class="edit-btn" onclick="editProduct('${productId}', '${product.name}', ${product.price}, '${product.image || ''}', '${product.sellingType}')">تعديل</button>
+                        <button class="delete-btn" onclick="deleteProduct('${productId}')">حذف</button>
+                    </div>
+                `;
+                productsList.appendChild(productItem);
+            });
+        }
+
+        document.getElementById('productForm').addEventListener('submit', async function(event) {
+            event.preventDefault();
+
+            const productId = document.getElementById('productId').value;
+            const productName = document.getElementById('productName').value;
+            const productPrice = parseFloat(document.getElementById('productPrice').value);
+            const productImageInput = document.getElementById('productImage').files[0];
+            const sellingType = document.getElementById('sellingType').value;
+
+            if (!productName || !productPrice) {
+                alert("يرجى ملء جميع الحقول المطلوبة.");
+                return;
+            }
+
+            const productData = { name: productName, price: productPrice, sellingType };
+
+            if (productImageInput) {
+                const reader = new FileReader();
+                reader.onload = async function(e) {
+                    productData.image = e.target.result;
+                    await saveProduct(productId, productData);
+                };
+                reader.readAsDataURL(productImageInput);
+            } else {
+                await saveProduct(productId, productData);
+            }
+        });
+
+        async function saveProduct(productId, productData) {
+            if (productId) {
+                await updateDoc(doc(db, "products", productId), productData);
+                alert("تم تحديث المنتج بنجاح!");
+            } else {
+                await addDoc(collection(db, "products"), productData);
+                alert("تمت إضافة المنتج بنجاح!");
+            }
+            resetForm();
+            displayProducts();
+        }
+
+        window.editProduct = function (id, name, price, image, sellingType) {
+            document.getElementById('productId').value = id;
+            document.getElementById('productName').value = name;
+            document.getElementById('productPrice').value = price;
+            document.getElementById('sellingType').value = sellingType;
+        };
+
+        window.deleteProduct = async function(id) {
+            if (confirm("هل أنت متأكد أنك تريد حذف هذا المنتج؟")) {
+                await deleteDoc(doc(db, "products", id));
+                alert("تم حذف المنتج!");
+                displayProducts();
+            }
+        };
+
+        function resetForm() {
+            document.getElementById('productId').value = '';
+            document.getElementById('productName').value = '';
+            document.getElementById('productPrice').value = '';
+            document.getElementById('productImage').value = '';
+            document.getElementById('sellingType').value = 'weight';
+        }
+    </script>
+</body>
+</html>

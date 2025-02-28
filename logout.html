@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تسجيل الخروج</title>
+    <style>
+/* استيراد خط عربي */
+@import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap');
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Tajawal', sans-serif;
+    direction: rtl;
+}
+
+body {
+    background: #f4f4f4;
+    color: #333;
+    text-align: center;
+}
+
+header {
+    background-color: #333;
+    color: white;
+    padding: 15px 0;
+}
+
+nav {
+    margin-top: 10px;
+}
+
+nav a {
+    color: white;
+    margin: 0 15px;
+    text-decoration: none;
+    font-size: 16px;
+}
+
+.container, .orders-container, .stats-container, .products-section {
+    background-color: white;
+    padding: 20px;
+    margin: 20px auto;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    max-width: 1000px;
+}
+
+h1, h2 {
+    color: #222;
+    margin-bottom: 20px;
+}
+
+button {
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: background 0.3s;
+    font-size: 16px;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+input, select {
+    padding: 10px;
+    width: 100%;
+    margin: 10px 0;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 16px;
+}
+
+.order-item, .product-item {
+    padding: 15px;
+    border-bottom: 1px solid #ddd;
+    text-align: right;
+}
+
+.order-item:last-child, .product-item:last-child {
+    border-bottom: none;
+}
+
+.total-price {
+    font-weight: bold;
+    color: #d9534f;
+    font-size: 1.2em;
+}
+
+.order-buttons, .buttons-container {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin-top: 10px;
+}
+
+.restore-button {
+    background-color: #5cb85c;
+}
+
+.delete-button {
+    background-color: red;
+}
+
+.restore-button:hover {
+    background-color: #4cae4c;
+}
+
+.delete-button:hover {
+    background-color: #c9302c;
+}
+
+.footer {
+    margin-top: 20px;
+    text-align: center;
+    color: #666;
+}
+
+    </style>
+</head>
+<body>
+    <header>
+        <h1>تسجيل الخروج</h1>
+    </header>
+
+    <div class="container">
+        <div class="message">
+            <p>تم تسجيل الخروج بنجاح!</p>
+        </div>
+
+        <div>
+            <button onclick="window.location.href='index.html'">الرجوع إلى صفحة الدخول</button>
+        </div>
+
+        <div class="footer">
+            <p>&copy; 2024 جميع الحقوق محفوظة.</p>
+        </div>
+    </div>
+</body>
+</html>

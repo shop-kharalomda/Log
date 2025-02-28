@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تسجيل الدخول</title>
+    <style>
+        /* استيراد خط عربي */
+        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Tajawal', sans-serif;
+        }
+
+        body {
+            background: #f8f9fa;
+            text-align: center;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .login-container {
+            background: white;
+            padding: 25px;
+            width: 350px;
+            box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.1);
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        h2 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        input {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            outline: none;
+            transition: border 0.3s;
+        }
+
+        input:focus {
+            border: 1px solid #28a745;
+        }
+
+        button {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 12px;
+            width: 100%;
+            cursor: pointer;
+            margin-top: 10px;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: background 0.3s;
+        }
+
+        button:hover {
+            background: #218838;
+        }
+
+        #loading {
+            font-size: 14px;
+            color: #28a745;
+            margin-top: 10px;
+            display: none;
+        }
+
+        #forgotPassword {
+            display: block;
+            margin-top: 10px;
+            text-decoration: none;
+            color: #007bff;
+            font-size: 14px;
+        }
+
+        #forgotPassword:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="login-container">
+        <h2>تسجيل الدخول</h2>
+        <form id="loginForm">
+            <input type="email" id="email" placeholder="البريد الإلكتروني" required>
+            <input type="password" id="password" placeholder="كلمة المرور" required>
+            <button type="submit">تسجيل الدخول</button>
+            <div id="loading">جارٍ تسجيل الدخول...</div>
+            <p id="errorMessage" style="color: red;"></p>
+        </form>
+
+        <a href="#" id="forgotPassword">هل نسيت كلمة المرور؟</a>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.3.1/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/11.3.1/firebase-auth.js";
+
+        // إعداد Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyCsBQPgIedLCjowpRFeEmYKVk7XOmbCX7k",
+            authDomain: "koko-95a74.firebaseapp.com",
+            projectId: "koko-95a74",
+            storageBucket: "koko-95a74.appspot.com",
+            messagingSenderId: "270797656212",
+            appId: "1:270797656212:web:199d08a9b4631993706481",
+            measurementId: "G-06FN645SZR"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+
+        // ** استعادة البريد وكلمة المرور عند تحميل الصفحة **
+        window.onload = () => {
+            const savedEmail = localStorage.getItem("savedEmail");
+            const savedPassword = localStorage.getItem("savedPassword");
+
+            if (savedEmail) {
+                document.getElementById("email").value = savedEmail;
+            }
+            if (savedPassword) {
+                document.getElementById("password").value = atob(savedPassword); // فك تشفير كلمة المرور
+            }
+        };
+
+        // ** تسجيل الدخول **
+        document.getElementById("loginForm").addEventListener("submit", async function (event) {
+            event.preventDefault();
+
+            const email = document.getElementById("email").value;
+            const password = document.getElementById("password").value;
+            const loadingIndicator = document.getElementById("loading");
+            const errorMessage = document.getElementById("errorMessage");
+
+            loadingIndicator.style.display = "block";
+
+            try {
+                const userCredential = await signInWithEmailAndPassword(auth, email, password);
+
+                // ** حفظ البريد وكلمة المرور بعد التشفير **
+                localStorage.setItem("savedEmail", email);
+                localStorage.setItem("savedPassword", btoa(password)); // تشفير كلمة المرور
+
+                alert("تم تسجيل الدخول بنجاح!");
+                window.location.href = "admin-orders.html"; // التوجيه بعد تسجيل الدخول الناجح
+            } catch (error) {
+                errorMessage.textContent = "خطأ في تسجيل الدخول! تحقق من البيانات.";
+            } finally {
+                loadingIndicator.style.display = "none";
+            }
+        });
+
+        // ** إعادة تعيين كلمة المرور **
+        document.getElementById("forgotPassword").addEventListener("click", async () => {
+            const email = prompt("أدخل بريدك الإلكتروني لإعادة تعيين كلمة المرور:");
+            if (email) {
+                try {
+                    await sendPasswordResetEmail(auth, email);
+                    alert("تم إرسال رابط إعادة تعيين كلمة المرور إلى بريدك الإلكتروني.");
+                } catch (error) {
+                    alert("حدث خطأ، تأكد من صحة البريد الإلكتروني.");
+                }
+            }
+        });
+    </script>
+
+</body>
+</html>
